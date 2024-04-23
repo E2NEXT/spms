@@ -4,6 +4,16 @@ from frappe.utils import cstr
 from random import randint
 from datetime import date
 
+from frappe import _
+
+@frappe.whitelist()
+def get_base_url():
+    return frappe.utils.get_url()
+
+@frappe.whitelist()
+def current_site_name():
+    return cstr(frappe.local.site)
+
 
 def generate_qrcode(site_name, route_name):
     """
