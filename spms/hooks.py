@@ -105,7 +105,12 @@ doc_events = {
     "Sales Invoice": {
         "on_submit": "spms.methods.events.sales_invoice.on_submit",
         "on_cancel": "spms.methods.events.sales_invoice.on_cancel",
-    }
+    }, 
+    
+    # A hook to the item doctype.
+    "Item": {
+        "before_save": "spms.methods.events.item.before_save"
+    }, 
 }
 
 # Scheduled Tasks
