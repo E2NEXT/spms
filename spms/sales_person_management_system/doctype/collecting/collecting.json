@@ -16,6 +16,7 @@
   "company",
   "company_currency",
   "date",
+  "time",
   "column_break_8",
   "qrcode_html",
   "customer_details_section",
@@ -342,6 +343,13 @@
    "label": "Remaining Account Balance",
    "options": "party_account_currency",
    "read_only": 1
+  },
+  {
+   "default": "Now",
+   "fieldname": "time",
+   "fieldtype": "Time",
+   "label": "Time",
+   "read_only": 1
   }
  ],
  "has_web_view": 1,
@@ -358,7 +366,7 @@
    "link_fieldname": "company"
   }
  ],
- "modified": "2024-04-22 09:04:53.681415",
+ "modified": "2024-04-27 09:01:26.101394",
  "modified_by": "Administrator",
  "module": "Sales Person Management System",
  "name": "Collecting",
