@@ -65,10 +65,10 @@ def execute(filters=None):
 
         account_totals[account["name"]] = [account["name"], account["company"], balance]
 
-        total_balance += balance
+        # total_balance += balance
 
     data = list(account_totals.values())
 
-    data.append(["Total", "", total_balance])
+    # data.append(["Total", "", total_balance])
 
     return columns, data
