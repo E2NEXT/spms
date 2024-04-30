@@ -98,15 +98,6 @@
    "read_only": 1
   },
   {
-   "fieldname": "amended_from",
-   "fieldtype": "Link",
-   "label": "Amended From",
-   "no_copy": 1,
-   "options": "Collecting",
-   "print_hide": 1,
-   "read_only": 1
-  },
-  {
    "fetch_from": "company.default_currency",
    "fieldname": "company_currency",
    "fieldtype": "Data",
@@ -231,29 +222,34 @@
    "collapsible": 1,
    "fieldname": "location_section",
    "fieldtype": "Section Break",
-   "label": "Location"
+   "label": "Location",
+   "permlevel": 1
   },
   {
    "fieldname": "longitude",
    "fieldtype": "Data",
    "hidden": 1,
-   "label": "Longitude"
+   "label": "Longitude",
+   "permlevel": 1
   },
   {
    "fieldname": "latitude",
    "fieldtype": "Data",
    "hidden": 1,
-   "label": "Latitude"
+   "label": "Latitude",
+   "permlevel": 1
   },
   {
    "fieldname": "my_location",
    "fieldtype": "HTML",
-   "label": "Position"
+   "label": "Position",
+   "permlevel": 1
   },
   {
    "fieldname": "current_address",
    "fieldtype": "Read Only",
-   "label": "Address"
+   "label": "Address",
+   "permlevel": 1
   },
   {
    "fieldname": "image",
@@ -265,6 +261,7 @@
    "fieldname": "route",
    "fieldtype": "Data",
    "label": "Route",
+   "permlevel": 1,
    "read_only": 1
   },
   {
@@ -366,7 +363,7 @@
    "link_fieldname": "company"
   }
  ],
- "modified": "2024-04-27 09:01:26.101394",
+ "modified": "2024-04-30 11:19:56.800242",
  "modified_by": "Administrator",
  "module": "Sales Person Management System",
  "name": "Collecting",

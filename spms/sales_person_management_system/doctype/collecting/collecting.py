@@ -34,7 +34,7 @@ class Collecting(WebsiteGenerator):
 		"""
 		if not self.image:
 			self.route = hashlib.sha1(str(self.name).encode()).hexdigest()
-			site_name = cstr(frappe.local.site)
+			site_name = frappe.utils.get_url()
 			image_path = generate_qrcode(
 				site_name=site_name, route_name=self.route)
 			self.image = image_path
