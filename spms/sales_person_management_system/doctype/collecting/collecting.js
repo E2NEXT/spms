@@ -58,7 +58,7 @@ frappe.ui.form.on('Collecting', {
 			frappe.msgprint('Pleas Enable the Location Service');
 		}
 
-		frm.set_value("remaining_account_balance", frm.doc.account_balance - frm.doc.total_paid)
+		frm.set_value("remaining_account_balance", frm.doc.account_balance - frm.doc.total_company_currency)
 	},
 
 	customer: function (frm) {
