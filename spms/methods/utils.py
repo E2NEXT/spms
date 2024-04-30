@@ -6,9 +6,11 @@ from datetime import date
 
 from frappe import _
 
+
 @frappe.whitelist()
 def get_base_url():
     return frappe.utils.get_url()
+
 
 @frappe.whitelist()
 def current_site_name():
@@ -29,9 +31,9 @@ def generate_qrcode(site_name, route_name):
         box_size=10,
         border=2,
     )
-    qr.add_data(f'{site_name}/{route_name}')
+    qr.add_data(f"{site_name}/{route_name}")
 
-    file_name = f'{randint(1, 100000)}-{date.today()}'
+    file_name = f"{randint(1, 100000)}-{date.today()}"
     img = qr.make_image(fill_color="black", back_color="white")
 
     current_site_name = cstr(frappe.local.site)
@@ -48,13 +50,11 @@ def update_doctor_productivity(visiting, operation):
     :param operation: This is the operation that is being performed on the visiting
     """
     visit_goal_doc = get_visit_goal(
-        visiting.visited_by, visiting.date, visiting.company)
-    if (
-        visit_goal_doc.parent_visit_goal
-        and visit_goal_doc.parent_visit_goal != ""
-    ):
+        visiting.visited_by, visiting.date, visiting.company
+    )
+    if visit_goal_doc.parent_visit_goal and visit_goal_doc.parent_visit_goal != "":
         parent_visit_goal_doc = frappe.get_doc(
-            'Visit Goal', visit_goal_doc.parent_visit_goal
+            "Visit Goal", visit_goal_doc.parent_visit_goal
         )
     else:
         parent_visit_goal_doc = None
@@ -77,8 +77,7 @@ def update_doctors_table(visiting, operation, visit_goal_doc):
     for row in visit_goal_doc.productivity:
         if row.doctor == visiting.doctor_name:
             row.verified_visits += operation
-            row.achievement = round(
-                row.verified_visits / row.number_of_visits * 100)
+            row.achievement = round(row.verified_visits / row.number_of_visits * 100)
 
     visit_goal_doc.save(ignore_permissions=True)
 
@@ -90,12 +89,17 @@ def get_visit_goal(sales_person, date, company):
     :param doc: The current document that is being saved
     :return: A dictionary with the name of the visit goal
     """
-    visit_goal_name = frappe.db.get_value("Visit Goal", {
-        "sales_person": sales_person,
-        "company": company,
-        "from": ["<=", date],
-        "to": [">=", date]
-    }, ["name"], as_dict=1)
+    visit_goal_name = frappe.db.get_value(
+        "Visit Goal",
+        {
+            "sales_person": sales_person,
+            "company": company,
+            "from": ["<=", date],
+            "to": [">=", date],
+        },
+        ["name"],
+        as_dict=1,
+    )
 
     return frappe.get_doc("Visit Goal", visit_goal_name)
 
@@ -117,26 +121,26 @@ def update_sales_person_target(sales_invoice, method, operator) -> None:
             continue
 
         visit_goal_doc = get_visit_goal(
-            sales_person.sales_person,
-            sales_invoice.posting_date,
-            sales_invoice.company
+            sales_person.sales_person, sales_invoice.posting_date, sales_invoice.company
         )
 
-        if (
-                visit_goal_doc.parent_visit_goal
-                and visit_goal_doc.parent_visit_goal != ""
-        ):
+        if visit_goal_doc.parent_visit_goal and visit_goal_doc.parent_visit_goal != "":
             parent_visit_goal_doc = frappe.get_doc(
-                'Visit Goal', visit_goal_doc.parent_visit_goal
+                "Visit Goal", visit_goal_doc.parent_visit_goal
             )
         else:
             parent_visit_goal_doc = None
 
         # تحديث تفاصيل الهدف للبائع وبائع الأم
-        update_target_breakdown(sales_invoice, visit_goal_doc, operator, sales_person_row=sales_person)
+        update_target_breakdown(
+            sales_invoice, visit_goal_doc, operator, sales_person_row=sales_person
+        )
         if parent_visit_goal_doc:
             update_target_breakdown(
-                sales_invoice, parent_visit_goal_doc, operator, sales_person_row=sales_person
+                sales_invoice,
+                parent_visit_goal_doc,
+                operator,
+                sales_person_row=sales_person,
             )
 
 
@@ -150,22 +154,23 @@ def update_target_breakdown(sales_invoice, visit_goal_doc, operator, sales_perso
     :param operator: 1 for adding, -1 for subtracting
     :param sales_person_row: The row of the salesperson in the Sales Team table
     """
-    total_contribution_percentage = sum(row.allocated_percentage for row in sales_invoice.sales_team)
-    
+    total_contribution_percentage = sum(
+        row.allocated_percentage for row in sales_invoice.sales_team
+    )
+
     for row in visit_goal_doc.target_breakdown:
         for item in sales_invoice.items:
             if item.item_code == row.item:
-                contribution_percentage = sales_person_row.allocated_percentage / total_contribution_percentage
+                contribution_percentage = (
+                    sales_person_row.allocated_percentage
+                    / total_contribution_percentage
+                )
                 row.sold += operator * item.qty * contribution_percentage
                 break
 
     contribution = sales_person_row.allocated_amount
     visit_goal_doc.achieved += operator * contribution
     visit_goal_doc.save(ignore_permissions=True)
-
-
-
-
 
 
 def calculate_fixed_target(doc, collects_goal_doc, operation):
@@ -177,7 +182,8 @@ def calculate_fixed_target(doc, collects_goal_doc, operation):
     :param operation: 1 for addition, -1 for subtraction
     """
     collects_goal_doc.total_collected += frappe.utils.flt(
-        doc.amount_other_currency * operation)
+        doc.amount_other_currency * operation
+    )
     calculate_incentives(collects_goal_doc)
     collects_goal_doc.save(ignore_permissions=True)
 
@@ -194,21 +200,19 @@ def update_customer_table(doc, collects_goal_doc, operation):
     # then it will add the amount to the additional collected.
     customer_not_found = True
     for row in collects_goal_doc.customer_collects_goal:
-        if (row.customer == doc.customer):
-            row.verified_collects += (doc.amount_other_currency * operation)
+        if row.customer == doc.customer:
+            row.verified_collects += doc.amount_other_currency * operation
             row.verified_visits += operation
             customer_not_found = False
             break
 
     # If the customer is not found in the table, then it will add the amount to the additional collected.
     if customer_not_found:
-        collects_goal_doc.additional_collected += (
-            doc.amount_other_currency * operation)
+        collects_goal_doc.additional_collected += doc.amount_other_currency * operation
 
     # Adding the verified collects of each customer in the customer collects goal table and adding it to
     # the additional collected.
-    total = sum(
-        i.verified_collects for i in collects_goal_doc.customer_collects_goal)
+    total = sum(i.verified_collects for i in collects_goal_doc.customer_collects_goal)
     total += collects_goal_doc.additional_collected
 
     # Updating the total collected and calculating the incentives.
@@ -230,7 +234,7 @@ def update_collects_goal(doc, operation):
         and collects_goal_doc.parent_collects_goal != ""
     ):
         parent_collects_goal_doc = frappe.get_doc(
-            'Collects Goal', collects_goal_doc.parent_collects_goal
+            "Collects Goal", collects_goal_doc.parent_collects_goal
         )
     else:
         parent_collects_goal_doc = None
@@ -240,8 +244,7 @@ def update_collects_goal(doc, operation):
         calculate_fixed_target(doc, collects_goal_doc, operation)
         if parent_collects_goal_doc:
             if parent_collects_goal_doc.target_type != "Fixed Target":
-                frappe.throw(
-                    "Parent and Child must have the same target type.")
+                frappe.throw("Parent and Child must have the same target type.")
             calculate_fixed_target(doc, parent_collects_goal_doc, operation)
 
     # Updating the customer collects goal table in the collects goal document
@@ -249,8 +252,7 @@ def update_collects_goal(doc, operation):
         update_customer_table(doc, collects_goal_doc, operation)
         if parent_collects_goal_doc:
             if parent_collects_goal_doc.target_type != "Customer Debt-based Target":
-                frappe.throw(
-                    "Parent and Child must have the same target type.")
+                frappe.throw("Parent and Child must have the same target type.")
             update_customer_table(doc, parent_collects_goal_doc, operation)
 
 
@@ -259,15 +261,20 @@ def get_collects_goal_doc(doc):
     It gets the name of the Collects Goal that is active for the Sales Person on the date of the Visit
     :return: The name of the Collects Goal
     """
-    collect_goal_name = frappe.db.get_value('Collects Goal', {
-        'sales_person': doc.visited_by,
-        'company': doc.company,
-        'from': ['<=', doc.date],
-        'to': ['>=', doc.date]
-    }, ['name'], as_dict=1)
+    collect_goal_name = frappe.db.get_value(
+        "Collects Goal",
+        {
+            "sales_person": doc.visited_by,
+            "company": doc.company,
+            "from": ["<=", doc.date],
+            "to": [">=", doc.date],
+        },
+        ["name"],
+        as_dict=1,
+    )
 
     # Get objects for Specific Collects Goal
-    return frappe.get_doc('Collects Goal', collect_goal_name)
+    return frappe.get_doc("Collects Goal", collect_goal_name)
 
 
 def calculate_incentives(collects_goal_doc):
@@ -279,12 +286,14 @@ def calculate_incentives(collects_goal_doc):
     """
     total_incentives = 0
     if len(collects_goal_doc.commissions_range) != 0:
-        target_percentage = (collects_goal_doc.total_collected /
-                             collects_goal_doc.total_targets) * 100
+        target_percentage = (
+            collects_goal_doc.total_collected / collects_goal_doc.total_targets
+        ) * 100
         for i in collects_goal_doc.commissions_range:
             if target_percentage >= i.from_ and target_percentage <= i.to_:
-                total_incentives = (i.commission / 100) * \
-                    collects_goal_doc.total_collected
+                total_incentives = (
+                    i.commission / 100
+                ) * collects_goal_doc.total_collected
                 break
     collects_goal_doc.incentives = frappe.utils.flt(total_incentives)
     collects_goal_doc.save(ignore_permissions=True)

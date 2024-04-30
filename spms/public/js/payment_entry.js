@@ -9,7 +9,7 @@
  | Description: Handles changes in the total_paid field.
  | Dependencies: custom_total_paid, discount_percentage, paid_amount
  ----------------------*/
- frappe.ui.form.on('Payment Entry', {
+frappe.ui.form.on('Payment Entry', {
     total_paid(frm) {
         // Check if total_paid is greater than 0
         if (frm.doc.total_paid > 0) {
