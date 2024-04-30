@@ -1,5 +1,6 @@
 {
  "actions": [],
+ "allow_events_in_timeline": 1,
  "allow_guest_to_view": 1,
  "allow_import": 1,
  "autoname": "naming_series:",
@@ -20,7 +21,6 @@
   "column_break_8",
   "qrcode_html",
   "customer_details_section",
-  "target_type",
   "qr_code",
   "customer",
   "currency",
@@ -289,13 +289,6 @@
    "label": "Sales Person Territory"
   },
   {
-   "fieldname": "target_type",
-   "fieldtype": "Select",
-   "hidden": 1,
-   "label": "Target Type",
-   "options": "According to Customer indebtedness\nFixed Target\nDebt + Additional Target"
-  },
-  {
    "default": "0",
    "fieldname": "discount",
    "fieldtype": "Percent",
@@ -363,7 +356,7 @@
    "link_fieldname": "company"
   }
  ],
- "modified": "2024-04-30 11:19:56.800242",
+ "modified": "2024-04-30 12:26:33.600646",
  "modified_by": "Administrator",
  "module": "Sales Person Management System",
  "name": "Collecting",
@@ -424,7 +417,5 @@
  "sort_field": "modified",
  "sort_order": "DESC",
  "states": [],
- "track_changes": 1,
- "track_seen": 1,
- "track_views": 1
+ "track_changes": 1
 }

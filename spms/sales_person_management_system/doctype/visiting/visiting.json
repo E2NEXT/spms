@@ -1,5 +1,6 @@
 {
  "actions": [],
+ "allow_events_in_timeline": 1,
  "allow_import": 1,
  "allow_rename": 1,
  "autoname": "naming_series:",
@@ -203,7 +204,7 @@
  ],
  "is_submittable": 1,
  "links": [],
- "modified": "2024-04-30 11:20:51.846794",
+ "modified": "2024-04-30 12:28:06.254473",
  "modified_by": "Administrator",
  "module": "Sales Person Management System",
  "name": "Visiting",
@@ -252,7 +253,5 @@
  "sort_field": "modified",
  "sort_order": "DESC",
  "states": [],
- "track_changes": 1,
- "track_seen": 1,
- "track_views": 1
+ "track_changes": 1
 }
