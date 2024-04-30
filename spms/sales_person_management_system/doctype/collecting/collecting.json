@@ -32,6 +32,7 @@
   "phone",
   "amount_section",
   "total_paid",
+  "total_company_currency",
   "discount",
   "amount",
   "amount_other_currency",
@@ -340,6 +341,12 @@
    "fieldtype": "Time",
    "label": "Time",
    "read_only": 1
+  },
+  {
+   "fieldname": "total_company_currency",
+   "fieldtype": "Currency",
+   "label": "Total Company Currency",
+   "read_only": 1
   }
  ],
  "has_web_view": 1,
@@ -356,7 +363,7 @@
    "link_fieldname": "company"
   }
  ],
- "modified": "2024-04-30 12:26:33.600646",
+ "modified": "2024-04-30 15:12:23.432091",
  "modified_by": "Administrator",
  "module": "Sales Person Management System",
  "name": "Collecting",

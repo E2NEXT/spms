@@ -63,10 +63,7 @@ frappe.ui.form.on('Collecting', {
 
 	customer: function (frm) {
 		 // Check if the 'customer' and 'company' fields are populated
-		 if (frm.doc.customer && frm.doc.company) {
-			// Retrieve the default currency for the company
-			let company_currency = frappe.get_doc(":Company", frm.doc.company).default_currency;
-   
+		 if (frm.doc.customer && frm.doc.company) {   
 			// Make a server call to fetch party details
 			return frappe.call({
 			   method: "erpnext.accounts.doctype.payment_entry.payment_entry.get_party_details",
@@ -101,6 +98,7 @@ frappe.ui.form.on('Collecting', {
 			calculateTheAmount(frm);
 		} else {
 			frm.set_value('amount_other_currency', frm.doc.amount);
+			frm.set_value('total_company_currency', frm.doc.total_paid);
 			frm.refresh();
 		}
 	}
@@ -218,6 +216,7 @@ function calculateTheAmount(frm) {
 	let result = 0;
 	result = frm.doc.amount * frm.doc.exchange_rate;
 	frm.set_value("amount_other_currency", result);
+	frm.set_value("total_company_currency", frm.doc.total_paid * frm.doc.exchange_rate);
 	frm.refresh();
 }
 

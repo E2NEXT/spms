@@ -15,36 +15,47 @@
         justify-content: center;
     }
     .paper{
-        width: 700px;
+        width: 90%;
+        max-width: 700px;
         padding: 50px 30px;
         position: relative;
+        background-color: #ffffff;
+        border-radius: 10px;
+        box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.1);
     }
     .paper-top{
         width: 100%;
-        height: 10px;
-        background-color: #4C5A67;
+        height: 20px;
+        background-color: #3f90db;
         position: absolute;
         top: 0;
         left: 0;
+        border-top-left-radius: 10px;
+        border-top-right-radius: 10px;
     }
     .title{
         font-size: 35px;
         margin: 0!important;
+        color: #333;
     }
     .customer{
         margin-top: 10px!important;
         font-weight: 300;
         font-size: 20px;
+        color: #555;
     }
     .subtitle{
         font-size: 15px;
+        color: #666;
     }
     p{
         margin: 0!important;
+        color: #444;
     }
     b{
         margin-right: 15px;
         font-weight: 500;
+        color: #222;
     }
     .details{
         margin-top: 20px;
@@ -102,7 +113,22 @@
             <img class="col hidden-xs" src="{{doc.image}}" alt="">
         </div>
         <table class="table mt-4">
-            <thead class="thead-dark">
+            <thead class="thead-light">
+              <tr>
+                <th scope="col">{{_("Account Balance")}}</th>
+                <th scope="col">{{_("Account Currency")}}</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>{{account_balance}}</td>
+                <td>{{party_account_currency}}</td>
+              </tr>
+            </tbody>
+          </table>
+
+        <table class="table mt-4">
+            <thead class="thead-light">
               <tr>
                 <th scope="col">Description</th>
                 <th scope="col">Value</th>
@@ -110,11 +136,23 @@
             </thead>
             <tbody>
               <tr>
+                <td>{{_("Total Paid")}}</td>
+                <td>{{"{:,}".format(total_paid)}} / {{amount_currency}}</td>
+              </tr>
+              <tr>
+                <td>{{_("Discount Amount")}}</td>
+                <td>{{"{:,}".format(discount_amount)}} / {{amount_currency}}</td>
+              </tr>
+              <tr>
                 <td>Amount</td>
                 <td>{{"{:,}".format(amount)}} / {{amount_currency}}</td>
               </tr>
               <tr>
-                <td>Amount Company Currency</td>
+                <td>{{_("Remaining Account Balance")}}</td>
+                <td>{{"{:,}".format(remaining_account_balance)}} / {{party_account_currency}}</td>
+              </tr>
+              <tr>
+                <td>{{_("Amount Company Currency")}}</td>
                 <td>{{"{:,}".format(amount_other_currency)}} / {{company_currency}}</td>
               </tr>
               {% if amount_currency != company_currency %}
@@ -128,7 +166,7 @@
        
           {% if invoices %}
             <table class="table mt-4">
-                <thead class="thead-dark">
+                <thead class="thead-light">
                     <tr>
                         <th scope="col">Invoice No</th>
                         <th scope="col">Outstanding</th>
@@ -150,10 +188,11 @@
           
         <div class="paper-footer">
             <p class="px-2"><b class="subtitle">Date :</b> <span class="text-muted">{{doc.date}}</span></p>
+            <p class="px-2"><b class="subtitle">Time :</b> <span class="text-muted">{{doc.time}}</span></p>
             <p class="px-2"><b class="subtitle">Encrypt :</b> <span class="text-muted">{{doc.route}}</span></p>
         </div>
         <hr>
-        <h5 class="text-center"><a href="https://aoai.io" target="_blank">AOAI Technology</a></h5>
+        <h5 class="text-center"><a href="https://e2next.com" target="_blank" style="color: #4C5A67;">E2NEXT Technology</a></h5>
     </div>
 </div>
 {% endblock %}
