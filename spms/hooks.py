@@ -10,10 +10,17 @@ app_license = "MIT"
 
 # Includes in <head>
 # ------------------
-
+node_modules = {
+    'onscan': {
+        'js': [
+            'assets/spms/node_modules/onscan.js/onscan.js',
+        ],
+    }
+}
+app_include_js = node_modules.get('onscan').get('js')
 # include js, css files in header of desk.html
 # app_include_css = "/assets/spms/css/spms.css"
-# app_include_js = "/assets/spms/js/spms.js"
+# app_include_js = "assets/spms/node_modules/onscan.js/onscan.js"
 
 # include js, css files in header of web template
 # web_include_css = "/assets/spms/css/spms.css"
@@ -29,6 +36,9 @@ app_license = "MIT"
 # include js in page
 # page_js = {"page" : "public/js/file.js"}
 
+# doctype_js = {
+#     'Your_Doctype': node_modules.get('onScan').get('js'),
+# }
 # include js in doctype views
 doctype_js = {
     "Sales Invoice": "public/js/sales_invoice.js",

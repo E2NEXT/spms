@@ -1,0 +1,21 @@
+{
+  "name": "onscan.js",
+  "version": "1.5.2",
+  "description": "Framework agnostic onScan event fired when using hardware barcode scanners",
+  "main": "onscan.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/axenox/onscan.js.git"
+  },
+  "keywords": ["barcode", "RFID", "scanner", "scan"],
+  "author": "Andrej Kabachnik",
+  "contributors": [
+		"Andrej Kabachnik",
+		"Thomas Michael"
+  ],
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/axenox/onscan.js/issues"
+  },
+  "homepage": "https://github.com/axenox/onscan.js/"
+}

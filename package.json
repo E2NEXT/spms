@@ -1,0 +1,14 @@
+{
+  "name": "spms",
+  "version": "1.0.0",
+  "description": "Sales Person Management System",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "onscan.js": "^1.5.2"
+  }
+}
