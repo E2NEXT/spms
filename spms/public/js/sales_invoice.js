@@ -9,41 +9,41 @@ frappe.ui.form.on('Sales Team', {
 
 
 
-frappe.ui.form.on('Sales Invoice', {
-    refresh(frm) {
-        // Set page length to show all items
-        frm.get_field("items").grid.grid_pagination.page_length = 99_999;
+// frappe.ui.form.on('Sales Invoice', {
+//     refresh(frm) {
+//         // Set page length to show all items
+//         frm.get_field("items").grid.grid_pagination.page_length = 99_999;
 
-        frappe.require([
-            'assets/spms/node_modules/onscan.js/onscan.js',
-        ], () => {
-            // Enable scan events for the entire document
-            onScan.attachTo(document);
-            document.addEventListener('scan', async (event) => {
-                const { scanCode: sScanned, qty: iQty } = event.detail;
+//         frappe.require([
+//             'assets/spms/node_modules/onscan.js/onscan.js',
+//         ], () => {
+//             // Enable scan events for the entire document
+//             onScan.attachTo(document);
+//             document.addEventListener('scan', async (event) => {
+//                 const { scanCode: sScanned, qty: iQty } = event.detail;
 
-                const existingItem = frm.doc.items.find(item => item.barcode == sScanned);
-                if (existingItem) {
-                    existingItem.qty += 1;
-                    updateItem(existingItem, frm);
-                } else {
-                    const respItem = await searchItemByBarcode(sScanned);
-                    if (respItem) {
-                        const row = frm.add_child('items', {
-                            barcode: sScanned,
-                            item_code: respItem.parent,
-                            item_name: respItem.parent,
-                            description: respItem.parent,
-                            qty: iQty,
-                            uom: respItem.uom
-                        });
-                        updateItem(row, frm);
-                    }
-                }
-            });
-        });
-    },
-});
+//                 const existingItem = frm.doc.items.find(item => item.barcode == sScanned);
+//                 if (existingItem) {
+//                     existingItem.qty += 1;
+//                     updateItem(existingItem, frm);
+//                 } else {
+//                     const respItem = await searchItemByBarcode(sScanned);
+//                     if (respItem) {
+//                         const row = frm.add_child('items', {
+//                             barcode: sScanned,
+//                             item_code: respItem.parent,
+//                             item_name: respItem.parent,
+//                             description: respItem.parent,
+//                             qty: iQty,
+//                             uom: respItem.uom
+//                         });
+//                         updateItem(row, frm);
+//                     }
+//                 }
+//             });
+//         });
+//     },
+// });
 
 // Function to update item in the table
 function updateItem(item, frm) {

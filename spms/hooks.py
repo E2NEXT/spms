@@ -1,4 +1,5 @@
 from . import __version__ as app_version
+
 app_name = "spms"
 app_title = "Sales Person Management System"
 app_publisher = "aoai"
@@ -11,13 +12,13 @@ app_license = "MIT"
 # Includes in <head>
 # ------------------
 node_modules = {
-    'onscan': {
-        'js': [
-            'assets/spms/node_modules/onscan.js/onscan.js',
+    "onscan": {
+        "js": [
+            "assets/spms/node_modules/onscan.js/onscan.js",
         ],
     }
 }
-app_include_js = node_modules.get('onscan').get('js')
+app_include_js = node_modules.get("onscan").get("js")
 # include js, css files in header of desk.html
 # app_include_css = "/assets/spms/css/spms.css"
 # app_include_js = "assets/spms/node_modules/onscan.js/onscan.js"
@@ -110,39 +111,36 @@ doctype_js = {
 # Hook on document methods and events
 
 doc_events = {
-
     # A hook to the sales invoice doctype.
     "Sales Invoice": {
         "on_submit": "spms.methods.events.sales_invoice.on_submit",
         "on_cancel": "spms.methods.events.sales_invoice.on_cancel",
-    }, 
-    
+    },
     # A hook to the item doctype.
-    "Item": {
-        "before_save": "spms.methods.events.item.before_save"
-    }, 
+    "Item": {"before_save": "spms.methods.events.item.before_save"},
 }
 
 # Scheduled Tasks
 # ---------------
 
-# scheduler_events = {
-# 	"all": [
-# 		"spms.tasks.all"
-# 	],
-# 	"daily": [
-# 		"spms.tasks.daily"
-# 	],
-# 	"hourly": [
-# 		"spms.tasks.hourly"
-# 	],
-# 	"weekly": [
-# 		"spms.tasks.weekly"
-# 	]
-# 	"monthly": [
-# 		"spms.tasks.monthly"
-# 	]
-# }
+scheduler_events = {
+    "cron": {
+        "*/1 * * * *": ["spms.tasks.daily.calculate_overtime_and_create_salary_doc"],
+        # "0/30 * * * *": [
+        # ],
+        # # Hourly but offset by 30 minutes
+        # "30 * * * *": [
+        # ],
+        # # Daily but offset by 45 minutes
+        # "45 0 * * *": [
+        # ],
+    },
+    # "all": ["spms.tasks.all"],
+    # "daily": ["spms.tasks.daily"],
+    # "hourly": ["spms.tasks.hourly"],
+    # "weekly": ["spms.tasks.weekly"],
+    # "monthly": ["spms.tasks.monthly"],
+}
 
 # Testing
 # -------

@@ -7,19 +7,28 @@
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
-  "max_discount_on_collecting"
+  "max_discount_on_collecting",
+  "overtime_salary_component"
  ],
  "fields": [
   {
    "fieldname": "max_discount_on_collecting",
    "fieldtype": "Percent",
    "label": "Max Discount on Collecting"
+  },
+  {
+   "fieldname": "overtime_salary_component",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Overtime Salary Component",
+   "options": "Salary Component",
+   "reqd": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2023-08-01 13:22:10.514348",
+ "modified": "2024-05-09 10:16:14.879912",
  "modified_by": "Administrator",
  "module": "Sales Person Management System",
  "name": "SPMS Settings",
