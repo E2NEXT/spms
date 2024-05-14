@@ -128,7 +128,7 @@ doc_events = {
 
 scheduler_events = {
     "cron": {
-        "*/1 * * * *": ["spms.tasks.daily.calculate_overtime_and_create_salary_doc"],
+        # "*/1 * * * *": ["spms.tasks.daily.calculate_overtime_and_create_salary_doc"],
         # "0/30 * * * *": [
         # ],
         # # Hourly but offset by 30 minutes
@@ -140,7 +140,9 @@ scheduler_events = {
     },
     # "all": ["spms.tasks.all"],
     # "daily": ["spms.tasks.daily"],
-    # "hourly": ["spms.tasks.hourly"],
+    "hourly": [
+        "spms.tasks.hourly.barcode_index"
+        ],
     # "weekly": ["spms.tasks.weekly"],
     # "monthly": ["spms.tasks.monthly"],
 }
