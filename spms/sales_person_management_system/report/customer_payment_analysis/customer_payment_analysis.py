@@ -5,9 +5,6 @@ import frappe.defaults
 
 
 def execute(filters=None):
-    print("frappe.session")
-    print(frappe.defaults)
-    print(frappe.defaults.get_user_default("company"))
     columns = [
         {
             "fieldname": "report_time",
@@ -46,7 +43,6 @@ def execute(filters=None):
             "fieldtype": "Currency",
             "width": 150,
         },
-
         {
             "fieldname": "days_from_last_payment",
             "label": _("Days from Last Payment"),
@@ -56,6 +52,7 @@ def execute(filters=None):
     ]
 
     data = []
+    total_balance = 0.0  # Variable to store the total balance
 
     if not filters:
         return columns, data
@@ -114,7 +111,7 @@ def execute(filters=None):
             party=customer.name,
             date=current_date,
         )
-        print(balance)
+        total_balance += balance.get("party_balance", 0.0)  # Add balance to total
 
         if filters.get("show_zeros") == 1:
             data.append(
@@ -140,5 +137,11 @@ def execute(filters=None):
                     "days_from_last_payment": days_from_last_payment,  # Calculated days from last payment
                 }
             )
+
+    # Append total row to data
+    data.append({
+        "customer": "Total",
+        "customer_account_balance": total_balance,
+    })
 
     return columns, data
