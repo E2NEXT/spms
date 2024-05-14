@@ -8,47 +8,58 @@ frappe.ui.form.on('Sales Team', {
 });
 
 
+frappe.ui.form.on('Sales Invoice', {
+    refresh(frm) {
+        // Set page length to show all items
+        frm.get_field("items").grid.grid_pagination.page_length = 99_999;
 
-// frappe.ui.form.on('Sales Invoice', {
-//     refresh(frm) {
-//         // Set page length to show all items
-//         frm.get_field("items").grid.grid_pagination.page_length = 99_999;
+        frappe.require([
+            'assets/spms/node_modules/onscan.js/onscan.js',
+        ], () => {
+            // Enable scan events for the entire document
+            onScan.attachTo(document);
 
-//         frappe.require([
-//             'assets/spms/node_modules/onscan.js/onscan.js',
-//         ], () => {
-//             // Enable scan events for the entire document
-//             onScan.attachTo(document);
-//             document.addEventListener('scan', async (event) => {
-//                 const { scanCode: sScanned, qty: iQty } = event.detail;
+            let debounceTimeout;
+            const debounceDelay = 200; // 300 ms delay for debouncing
 
-//                 const existingItem = frm.doc.items.find(item => item.barcode == sScanned);
-//                 if (existingItem) {
-//                     existingItem.qty += 1;
-//                     updateItem(existingItem, frm);
-//                 } else {
-//                     const respItem = await searchItemByBarcode(sScanned);
-//                     if (respItem) {
-//                         const row = frm.add_child('items', {
-//                             barcode: sScanned,
-//                             item_code: respItem.parent,
-//                             item_name: respItem.parent,
-//                             description: respItem.parent,
-//                             qty: iQty,
-//                             uom: respItem.uom
-//                         });
-//                         updateItem(row, frm);
-//                     }
-//                 }
-//             });
-//         });
-//     },
-// });
+            document.addEventListener('scan', async (event) => {
+                clearTimeout(debounceTimeout);
+                debounceTimeout = setTimeout(async () => {
+                    const { scanCode: sScanned, qty: iQty } = event.detail;
+
+                    const existingItem = frm.doc.items.find(item => item.custom_barcode_label == sScanned);
+                    if (existingItem) {
+                        existingItem.qty += 1;
+                        await updateItem(existingItem, frm);
+                    } else {
+                        try {
+                            const respItem = await searchItemByBarcode(sScanned);
+                            if (respItem) {
+                                const row = frm.add_child('items', {
+                                    custom_barcode_label: sScanned,
+                                    item_code: respItem.parent,
+                                    item_name: respItem.parent,
+                                    description: respItem.parent,
+                                    qty: iQty,
+                                    uom: respItem.uom
+                                });
+                                await updateItem(row, frm);
+                            }
+                        } catch (error) {
+                            console.error('Error searching item by barcode:', error);
+                        }
+                    }
+                }, debounceDelay);
+            });
+        });
+    },
+});
 
 // Function to update item in the table
-function updateItem(item, frm) {
+async function updateItem(item, frm) {
+    await frm.script_manager.trigger('item_code', item.doctype, item.name);
     frm.refresh_field("items");
-    frm.reload()
+
     const element = document.querySelector(`[data-name="${item.name}"]`);
     if (element) {
         element.focus();
