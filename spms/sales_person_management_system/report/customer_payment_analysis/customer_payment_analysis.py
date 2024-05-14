@@ -1,9 +1,13 @@
 import frappe
 from frappe import _
 from erpnext.accounts.doctype.payment_entry.payment_entry import get_party_details
+import frappe.defaults
 
 
 def execute(filters=None):
+    print("frappe.session")
+    print(frappe.defaults)
+    print(frappe.defaults.get_user_default("company"))
     columns = [
         {
             "fieldname": "report_time",
@@ -90,7 +94,7 @@ def execute(filters=None):
                 "party": customer.name,
                 "docstatus": 1,
             },
-            fields=["posting_date", "base_paid_amount","paid_amount"],
+            fields=["posting_date", "base_paid_amount","custom_total_paid"],
             order_by="posting_date desc",
             limit=1,
         )
@@ -98,7 +102,7 @@ def execute(filters=None):
             last_payment_entry[0].posting_date if last_payment_entry else None
         )
         last_payment_amount = (
-            last_payment_entry[0].paid_amount if last_payment_entry else None
+            last_payment_entry[0].custom_total_paid if last_payment_entry else None
         )
         days_from_last_payment = (
             (current_date - last_payment_date).days if last_payment_date else None
