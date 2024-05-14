@@ -6,6 +6,18 @@ from erpnext.accounts.doctype.payment_entry.payment_entry import get_party_detai
 def execute(filters=None):
     columns = [
         {
+            "fieldname": "report_time",
+            "label": _("Report Time"),
+            "fieldtype": "Data",
+            "width": 120,
+        },
+        {
+            "fieldname": "report_date",
+            "label": _("Report Date"),
+            "fieldtype": "Date",
+            "width": 120,
+        },
+        {
             "fieldname": "customer",
             "label": _("Customer"),
             "fieldtype": "Link",
@@ -30,18 +42,7 @@ def execute(filters=None):
             "fieldtype": "Currency",
             "width": 150,
         },
-        {
-            "fieldname": "report_time",
-            "label": _("Report Time"),
-            "fieldtype": "Data",
-            "width": 120,
-        },
-        {
-            "fieldname": "report_date",
-            "label": _("Report Date"),
-            "fieldtype": "Date",
-            "width": 120,
-        },
+
         {
             "fieldname": "days_from_last_payment",
             "label": _("Days from Last Payment"),
@@ -61,7 +62,6 @@ def execute(filters=None):
             "Customer",
             filters={
                 "customer_name": filters.get("customer"),
-                "customer_group": filters.get("customer_group"),
             },
             fields=["name"],
         )
@@ -83,15 +83,6 @@ def execute(filters=None):
 
     # Populating 'data' list with customer data
     for customer in customers:
-        # last_payment_entry = frappe.get_all("Payment Entry",
-        # 									filters={"party_type": "Customer",
-        # 											"party": customer.name,
-        # 											"docstatus": 1,
-        # 											"posting_date": (">=", filters.get("from_date")),
-        # 											"posting_date": ("<=", filters.get("to_date"))},
-        # 									fields=["posting_date", "base_paid_amount"],
-        # 									order_by="posting_date desc",
-        # 									limit=1)
         last_payment_entry = frappe.get_all(
             "Payment Entry",
             filters={
@@ -99,7 +90,7 @@ def execute(filters=None):
                 "party": customer.name,
                 "docstatus": 1,
             },
-            fields=["posting_date", "base_paid_amount"],
+            fields=["posting_date", "base_paid_amount","paid_amount"],
             order_by="posting_date desc",
             limit=1,
         )
@@ -107,7 +98,7 @@ def execute(filters=None):
             last_payment_entry[0].posting_date if last_payment_entry else None
         )
         last_payment_amount = (
-            last_payment_entry[0].total_amount if last_payment_entry else None
+            last_payment_entry[0].paid_amount if last_payment_entry else None
         )
         days_from_last_payment = (
             (current_date - last_payment_date).days if last_payment_date else None
@@ -127,23 +118,19 @@ def execute(filters=None):
                     "customer": customer.name,
                     "last_payment_date": last_payment_date,
                     "last_payment_amount": last_payment_amount,
-                    "customer_account_balance": balance[
-                        "account_balance"
-                    ],  # You need to implement this logic
+                    "customer_account_balance": balance["party_balance"],  # You need to implement this logic
                     "report_time": current_time,
                     "report_date": current_date,
                     "days_from_last_payment": days_from_last_payment,  # Calculated days from last payment
                 }
             )
-        elif balance["account_balance"] != 0.0:
+        elif balance["party_balance"] != 0.0:
             data.append(
                 {
                     "customer": customer.name,
                     "last_payment_date": last_payment_date,
                     "last_payment_amount": last_payment_amount,
-                    "customer_account_balance": balance[
-                        "account_balance"
-                    ],  # You need to implement this logic
+                    "customer_account_balance": balance["party_balance"],  # You need to implement this logic
                     "report_time": current_time,
                     "report_date": current_date,
                     "days_from_last_payment": days_from_last_payment,  # Calculated days from last payment
