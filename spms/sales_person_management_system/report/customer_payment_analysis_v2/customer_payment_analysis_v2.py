@@ -44,12 +44,12 @@ def execute(filters=None):
 			"fieldtype": "Currency",
 			"width": 120,
 		},
-		{
-			"fieldname": "total",
-			"label": _("Total"),
-			"fieldtype": "Currency",
-			"width": 120,
-		},
+		# {
+		# 	"fieldname": "total",
+		# 	"label": _("Total"),
+		# 	"fieldtype": "Currency",
+		# 	"width": 120,
+		# },
 		{
 			"fieldname": "customer_account_balance",
 			"label": _("Customer Account Balance"),
@@ -199,7 +199,7 @@ def execute(filters=None):
 				"net_sales":net_sales,
 				"total":net_sales,
 				"last_customer_account_balance": last_party_balance, 
-				"customer_account_balance": balance["party_balance"],
+				"customer_account_balance":net_sales-total_payments#// balance["party_balance"],
 			}
 		)
 
