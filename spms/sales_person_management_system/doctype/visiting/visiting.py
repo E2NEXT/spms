@@ -7,6 +7,9 @@ from spms.methods.utils import update_doctor_productivity
 
 
 class Visiting(WebsiteGenerator):
+    def on_save(self):
+        frappe.publish_realtime('notification', data={'key': 'value'})
+        
     def on_submit(self):
         """
         It updates the doctor's productivity by 1

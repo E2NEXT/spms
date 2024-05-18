@@ -1,9 +1,12 @@
 # Copyright (c) 2022, aoai and contributors
 # For license information, please see license.txt
 
-# import frappe
+import frappe
 from frappe.model.document import Document
 
 
 class Doctor(Document):
-    pass
+    def save(self):
+        print("qqqqqqqqqqqqq")
+        frappe.publish_realtime('notification')
+        
