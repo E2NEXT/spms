@@ -4,7 +4,6 @@ from erpnext.accounts.doctype.payment_entry.payment_entry import get_party_detai
 import frappe.defaults
 from erpnext.accounts.utils import get_balance_on
 
-
 def execute(filters=None):
     columns = [
         {
@@ -64,6 +63,8 @@ def execute(filters=None):
     if not filters:
         return columns, data
 
+    company = filters.get("company")
+    
     customers = []
     if filters.get("customer"):
         customers = frappe.get_list(
@@ -93,6 +94,7 @@ def execute(filters=None):
     payments = frappe.get_all(
         "Payment Entry",
         filters={
+            "company": company,
             "party_type": "Customer",
             "party": ["in", customer_names],
             "posting_date": ["between", [from_date, to_date]],
@@ -104,11 +106,12 @@ def execute(filters=None):
     sales_invoices = frappe.get_all(
         "Sales Invoice",
         filters={
+            "company": company,
             "customer": ["in", customer_names],
             "posting_date": ["between", [from_date, to_date]],
             "docstatus": 1,
         },
-        fields=["customer", "total", "net_total", "status", "discount_amount", "is_return"],
+        fields=["customer", "base_total", "net_total", "status", "discount_amount", "is_return"],
     )
 
     # Organize data by customer
@@ -124,7 +127,7 @@ def execute(filters=None):
     for invoice in sales_invoices:
         if invoice['status'] != "Return":
             customer_sales.setdefault(invoice['customer'], 0)
-            customer_sales[invoice['customer']] += invoice['total']
+            customer_sales[invoice['customer']] += invoice['base_total']
         if invoice['is_return']:
             customer_returns.setdefault(invoice['customer'], 0)
             customer_returns[invoice['customer']] += invoice['net_total']
@@ -133,7 +136,7 @@ def execute(filters=None):
 
     for customer in customers:
         customer_name = customer['name']
-        last_party_balance = get_balance_on(party_type="Customer", party=customer_name, date=filters.get("from_date"))
+        last_party_balance = get_balance_on(party_type="Customer", party=customer_name, date=filters.get("from_date"), company=company)
 
         total_payments = customer_payments.get(customer_name, 0)
         total_non_returned_sales = customer_sales.get(customer_name, 0)
@@ -143,7 +146,7 @@ def execute(filters=None):
         net_sales = total_non_returned_sales + total_returned_sales - total_discount_amount
 
         balance = get_party_details(
-            company=filters.get("company"),
+            company=company,
             party_type="Customer",
             party=customer_name,
             date=current_date,
