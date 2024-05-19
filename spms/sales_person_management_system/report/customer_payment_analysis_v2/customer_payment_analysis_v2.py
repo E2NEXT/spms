@@ -105,10 +105,7 @@ def execute(filters=None):
 			fields=["posting_date", "base_paid_amount","custom_total_paid"],
 			order_by="posting_date desc",
 		)
-		total_payments = 0
-		for p in all_payments:
-			total_payments += p.custom_total_paid
-
+		total_payments = sum(p.custom_total_paid for p in all_payments)
 		# Optimized Frappe report code
 		invoices = frappe.get_all(
 			"Sales Invoice",
