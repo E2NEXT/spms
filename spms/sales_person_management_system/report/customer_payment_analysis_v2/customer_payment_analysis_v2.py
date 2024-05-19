@@ -149,8 +149,9 @@ def execute(filters=None):
             company=company,
             party_type="Customer",
             party=customer_name,
-            date=current_date,
+            date=filters.get("to_date"),
         )
+        current_party_balance = get_balance_on(party_type="Customer", party=customer_name, date=filters.get("to_date"), company=company)
 
         total_balance += balance.get("party_balance", 0.0)
 
@@ -160,7 +161,9 @@ def execute(filters=None):
         t4 += total_discount_amount
         t5 += net_sales
         t7 += last_party_balance
-        t8 += balance["party_balance"]
+        t8 += current_party_balance#balance["party_balance"]
+
+
 
         data.append({
             "customer": customer_name,
@@ -170,7 +173,7 @@ def execute(filters=None):
             "total_discounts": total_discount_amount,
             "net_sales": net_sales,
             "last_customer_account_balance": last_party_balance,
-            "customer_account_balance": net_sales - total_payments
+            "customer_account_balance": current_party_balance#net_sales - total_payments
         })
 
     data.append({
