@@ -8,11 +8,22 @@ from frappe import _
 
 
 
+# @frappe.whitelist()
+# def search_item_by_barcode(barcode, parent_doc):
+#     # Search for the item based on the scanned barcode in the child table of the parent document
+#     item = frappe.db.get_value('Item Barcode', {'parenttype': parent_doc, 'barcode': barcode}, 
+#                                ['name', 'parent', 'uom'], as_dict=True)
+
+#     return item
+
 @frappe.whitelist()
 def search_item_by_barcode(barcode, parent_doc):
     # Search for the item based on the scanned barcode in the child table of the parent document
     item = frappe.db.get_value('Item Barcode', {'parenttype': parent_doc, 'barcode': barcode}, 
                                ['name', 'parent', 'uom'], as_dict=True)
+
+    if not item:
+        frappe.throw(_("Item with barcode {0} not found").format(barcode))
 
     return item
 

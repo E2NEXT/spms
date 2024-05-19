@@ -4,177 +4,184 @@ from erpnext.accounts.doctype.payment_entry.payment_entry import get_party_detai
 import frappe.defaults
 from erpnext.accounts.utils import get_balance_on
 
-
 def execute(filters=None):
-	columns = [
-		{
-			"fieldname": "customer",
-			"label": _("Customer"),
-			"fieldtype": "Link",
-			"options": "Customer",
-			"width": 120,
-		},
-		{
-			"fieldname": "total_sales",
-			"label": _("Total Sales"),
-			"fieldtype": "Currency",
-			"width": 120,
-		},
-		{
-			"fieldname": "total_returned",
-			"label": _("Total Returned"),
-			"fieldtype": "Currency",
-			"width": 120,
-		},
-		{
-			"fieldname": "total_discounts",
-			"label": _("Total Discounts"),
-			"fieldtype": "Currency",
-			"width": 120,
-		},
-		{
-			"fieldname": "net_sales",
-			"label": _("Net Sales"),
-			"fieldtype": "Currency",
-			"width": 120,
-		},
-		{
-			"fieldname": "total_payments",
-			"label": _("Net Payments"),
-			"fieldtype": "Currency",
-			"width": 120,
-		},
-		{
-			"fieldname": "customer_account_balance",
-			"label": _("Customer Account Balance"),
-			"fieldtype": "Currency",
-			"width": 180,
-		},
+    columns = [
+        {
+            "fieldname": "customer",
+            "label": _("Customer"),
+            "fieldtype": "Link",
+            "options": "Customer",
+            "width": 120,
+        },
+        {
+            "fieldname": "last_customer_account_balance",
+            "label": _("Last Customer Balance"),
+            "fieldtype": "Currency",
+            "width": 180,
+        },
+        {
+            "fieldname": "total_sales",
+            "label": _("Total Sales"),
+            "fieldtype": "Currency",
+            "width": 120,
+        },
+        {
+            "fieldname": "total_returned",
+            "label": _("Total Returned"),
+            "fieldtype": "Currency",
+            "width": 120,
+        },
+        {
+            "fieldname": "total_discounts",
+            "label": _("Total Discounts"),
+            "fieldtype": "Currency",
+            "width": 120,
+        },
+        {
+            "fieldname": "net_sales",
+            "label": _("Net Sales"),
+            "fieldtype": "Currency",
+            "width": 120,
+        },
+        {
+            "fieldname": "total_payments",
+            "label": _("Net Payments"),
+            "fieldtype": "Currency",
+            "width": 120,
+        },
+        {
+            "fieldname": "customer_account_balance",
+            "label": _("Customer Account Balance"),
+            "fieldtype": "Currency",
+            "width": 180,
+        },
+    ]
 
-	]
+    data = []
+    total_balance = 0.0  # Variable to store the total balance
 
-	data = []
-	total_balance = 0.0  # Variable to store the total balance
+    if not filters:
+        return columns, data
 
-	if not filters:
-		return columns, data
+    company = filters.get("company")
+    
+    customers = []
+    if filters.get("customer"):
+        customers = frappe.get_list(
+            "Customer",
+            filters={"customer_name": filters.get("customer")},
+            fields=["name"],
+        )
+    elif filters.get("customer_group"):
+        customers = frappe.get_list(
+            "Customer",
+            filters={"customer_group": filters.get("customer_group")},
+            fields=["name"],
+        )
+    else:
+        customers = frappe.get_list("Customer", fields=["name"])
 
-	if filters.get("customer"):
-		customers = frappe.get_list(
-			"Customer",
-			filters={
-				"customer_name": filters.get("customer"),
-			},
-			fields=["name"],
-		)
-	else:
-		if filters.get("customer_group"):
-			customers = frappe.get_list(
-				"Customer",
-				filters={"customer_group": filters.get("customer_group")},
-				fields=["name"],
-			)
-		else:
-			customers = frappe.get_list("Customer", fields=["name"])
+    current_date = frappe.utils.get_datetime(frappe.utils.now()).date()
 
-	current_datetime = frappe.utils.get_datetime(frappe.utils.now())
-	current_date = current_datetime.date()
+    from_date = filters.get("from_date")
+    to_date = filters.get("to_date")
 
-	from_date = filters.get("from_date")
-	to_date = filters.get("to_date")
+    t1 = t2 = t3 = t4 = t5 = t7 = t8 = 0
 
-	t1=0
-	t2=0
-	t3=0
-	t4=0
-	t5=0
-	t7=0
-	t8=0
+    # Collect all payment entries and sales invoices first
+    customer_names = [customer['name'] for customer in customers]
 
-	# Populating 'data' list with customer data
-	for customer in customers:
-		last_party_balance = get_balance_on(party_type="Customer",  party=customer.name,date=filters.get("from_date"))
-		all_payments = frappe.get_all(
-			"Payment Entry",
-			filters={
-				"party_type": "Customer",
-				"party": customer.name,
-				"posting_date": ["between", [from_date, to_date]],
-				"docstatus": 1,
-			},
-			fields=["posting_date", "base_paid_amount","custom_total_paid"],
-			order_by="posting_date desc",
-		)
-		total_payments = sum(p.custom_total_paid for p in all_payments)
-		# Optimized Frappe report code
-		invoices = frappe.get_all(
-			"Sales Invoice",
-			filters={
-				"customer": customer.name,
-				"posting_date": ["between", [from_date, to_date]],
-				"docstatus": 1,
-			},
-			fields=["total", "net_total", "discount_amount", "is_return", "status"],
-			order_by="posting_date desc",
-		)
+    payments = frappe.get_all(
+        "Payment Entry",
+        filters={
+            "company": company,
+            "party_type": "Customer",
+            "party": ["in", customer_names],
+            "posting_date": ["between", [from_date, to_date]],
+            "docstatus": 1,
+        },
+        fields=["party", "custom_total_paid"],
+    )
 
-		total_non_returned_sales = 0
-		total_returned_sales = 0
-		total_discount_amount = 0
+    sales_invoices = frappe.get_all(
+        "Sales Invoice",
+        filters={
+            "company": company,
+            "customer": ["in", customer_names],
+            "posting_date": ["between", [from_date, to_date]],
+            "docstatus": 1,
+        },
+        fields=["customer", "base_total", "net_total", "status", "discount_amount", "is_return"],
+    )
 
-		for invoice in invoices:
-			if invoice.status != "Return":
-				total_non_returned_sales += invoice.total
-			if invoice.is_return == 1 and invoice.status == "Return":
-				total_returned_sales += invoice.net_total
-			total_discount_amount += invoice.discount_amount
+    # Organize data by customer
+    customer_payments = {}
+    customer_sales = {}
+    customer_returns = {}
+    customer_discounts = {}
 
+    for payment in payments:
+        customer_payments.setdefault(payment['party'], 0)
+        customer_payments[payment['party']] += payment['custom_total_paid']
 
-		net_sales = total_non_returned_sales+total_returned_sales-total_discount_amount
+    for invoice in sales_invoices:
+        if invoice['status'] != "Return":
+            customer_sales.setdefault(invoice['customer'], 0)
+            customer_sales[invoice['customer']] += invoice['base_total']
+        if invoice['is_return']:
+            customer_returns.setdefault(invoice['customer'], 0)
+            customer_returns[invoice['customer']] += invoice['net_total']
+        customer_discounts.setdefault(invoice['customer'], 0)
+        customer_discounts[invoice['customer']] += invoice['discount_amount']
 
-		balance = get_party_details(
-			company=filters.get("company"),
-			party_type="Customer",
-			party=customer.name,
-			date=current_date,
-		)
+    for customer in customers:
+        customer_name = customer['name']
+        last_party_balance = get_balance_on(party_type="Customer", party=customer_name, date=filters.get("from_date"), company=company)
 
-		total_balance += balance.get("party_balance", 0.0)  # Add balance to total
+        total_payments = customer_payments.get(customer_name, 0)
+        total_non_returned_sales = customer_sales.get(customer_name, 0)
+        total_returned_sales = customer_returns.get(customer_name, 0)
+        total_discount_amount = customer_discounts.get(customer_name, 0)
 
-		t1+=total_payments
-		t2+=total_non_returned_sales
-		t3+=total_returned_sales
-		t4+=total_discount_amount
-		t5+=net_sales
-		# t6+=net_sales
-		t7+=last_party_balance
-		t8+= balance["party_balance"]
+        net_sales = total_non_returned_sales + total_returned_sales - total_discount_amount
 
-		data.append(
-			{
-				"customer": customer.name,
-				"total_payments": total_payments,
-				"total_sales": total_non_returned_sales,
-				"total_returned": total_returned_sales,
-				"total_discounts": total_discount_amount,
-				"net_sales":net_sales,
-				"total":net_sales,
-				"last_customer_account_balance": last_party_balance, 
-				"customer_account_balance":net_sales-total_payments#// balance["party_balance"],
-			}
-		)
+        balance = get_party_details(
+            company=company,
+            party_type="Customer",
+            party=customer_name,
+            date=current_date,
+        )
 
-	# Append total row to data
-	data.append({
-		"customer": "total",
-		"total_payments": t1,
-		"total_sales": t2,
-		"total_returned": t3,
-		"total_discounts": t4,
-		"net_sales":t5,
-		# "total":t6,
-		"last_customer_account_balance": t7, 
-		"customer_account_balance": t8,
-	})
+        total_balance += balance.get("party_balance", 0.0)
 
-	return columns, data
+        t1 += total_payments
+        t2 += total_non_returned_sales
+        t3 += total_returned_sales
+        t4 += total_discount_amount
+        t5 += net_sales
+        t7 += last_party_balance
+        t8 += balance["party_balance"]
+
+        data.append({
+            "customer": customer_name,
+            "total_payments": total_payments,
+            "total_sales": total_non_returned_sales,
+            "total_returned": total_returned_sales,
+            "total_discounts": total_discount_amount,
+            "net_sales": net_sales,
+            "last_customer_account_balance": last_party_balance,
+            "customer_account_balance": net_sales - total_payments
+        })
+
+    data.append({
+        "customer": "total",
+        "total_payments": t1,
+        "total_sales": t2,
+        "total_returned": t3,
+        "total_discounts": t4,
+        "net_sales": t5,
+        "last_customer_account_balance": t7,
+        "customer_account_balance": t8,
+    })
+
+    return columns, data
