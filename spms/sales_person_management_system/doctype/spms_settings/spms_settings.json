@@ -8,7 +8,8 @@
  "engine": "InnoDB",
  "field_order": [
   "max_discount_on_collecting",
-  "overtime_salary_component"
+  "overtime_salary_component",
+  "max_child_table_rows"
  ],
  "fields": [
   {
@@ -23,12 +24,18 @@
    "label": "Overtime Salary Component",
    "options": "Salary Component",
    "reqd": 1
+  },
+  {
+   "default": "50",
+   "fieldname": "max_child_table_rows",
+   "fieldtype": "Int",
+   "label": "Max Child Table Rows"
   }
  ],
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2024-05-09 10:16:14.879912",
+ "modified": "2024-06-12 08:29:10.402029",
  "modified_by": "Administrator",
  "module": "Sales Person Management System",
  "name": "SPMS Settings",

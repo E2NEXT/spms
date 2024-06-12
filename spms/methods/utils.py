@@ -16,16 +16,63 @@ from frappe import _
 
 #     return item
 
+# @frappe.whitelist()
+# def search_item_by_barcode(barcode, parent_doc):
+#     # Search for the item based on the scanned barcode in the child table of the parent document
+#     item = frappe.db.get_value('Item Barcode', {'parenttype': parent_doc, 'barcode': barcode}, 
+#                                ['name', 'parent', 'uom'], as_dict=True)
+
+#     if not item:
+#         frappe.throw(_("Item with barcode {0} not found").format(barcode))
+
+#     return item
+
+
+# @frappe.whitelist()
+# def get_all_item_barcodes():
+#     item_barcodes = frappe.db.get_all('Item Barcode', fields=['barcode', 'parent', 'uom'])
+#     return item_barcodes
+
+
 @frappe.whitelist()
 def search_item_by_barcode(barcode, parent_doc):
-    # Search for the item based on the scanned barcode in the child table of the parent document
-    item = frappe.db.get_value('Item Barcode', {'parenttype': parent_doc, 'barcode': barcode}, 
-                               ['name', 'parent', 'uom'], as_dict=True)
-
+    cache_key = f'item_barcode_{barcode}'
+    item = frappe.local.cache.get(cache_key)
+    
     if not item:
-        frappe.throw(_("Item with barcode {0} not found").format(barcode))
+        item = frappe.db.get_value('Item Barcode', {'parenttype': parent_doc, 'barcode': barcode}, 
+                                   ['name', 'parent', 'uom'], as_dict=True)
+        if item:
+            frappe.local.cache[cache_key] = item
+        else:
+            frappe.throw(_("Item with barcode {0} not found").format(barcode))
 
     return item
+
+
+@frappe.whitelist()
+def get_initial_item_barcodes(limit=300):
+    cache_key = 'initial_item_barcodes'
+    barcodes = frappe.local.cache.get(cache_key)
+
+    if not barcodes:
+        barcodes = frappe.db.get_all('Item Barcode', fields=['barcode', 'parent', 'uom'], limit=limit)
+        frappe.local.cache[cache_key] = barcodes
+
+    return barcodes
+
+
+@frappe.whitelist()
+def get_all_item_barcodes():
+    cache_key = 'all_item_barcodes'
+    barcodes = frappe.local.cache.get(cache_key)
+
+    if not barcodes:
+        barcodes = frappe.db.get_all('Item Barcode', fields=['barcode', 'parent', 'uom'])
+        frappe.local.cache[cache_key] = barcodes
+
+    return barcodes
+
 
 
 @frappe.whitelist()
