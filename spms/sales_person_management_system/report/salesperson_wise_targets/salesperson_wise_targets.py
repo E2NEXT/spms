@@ -60,28 +60,35 @@ def execute(filters=None):
 def get_report_data(filters):
     data = []
     sales_persons = frappe.db.sql("""
-    select name from `tabSales Person`
+        SELECT name 
+        FROM `tabSales Person`
+        WHERE enabled = 1
     """, as_dict=0)
+
     salesperson_ = filters.get("salesperson")
     if salesperson_:
-        sales_persons = [(salesperson_,)] # add it as tuple to be on the same shape of the sql query result
+        sales_persons = [(salesperson_,)]  # add it as tuple to be on the same shape of the sql query result
+
     month_name = filters.get("month")
     company = filters.get("company")
     territory = filters.get("territory")
 
     start_date = get_first_day(month_name)
     end_date = get_last_day(month_name)
+
     for salesperson_tuple in sales_persons:
         salesperson = salesperson_tuple[0]
+
         sales_target_amount = f"""
-            SELECT sum(tvg.target) from `tabVisit Goal` tvg
-            where sales_person = '{salesperson}'
+            SELECT sum(tvg.target) 
+            FROM `tabVisit Goal` tvg
+            WHERE sales_person = '{salesperson}'
             AND `from` >= '{start_date}'
             AND `to` <= '{end_date}'
             AND company = '{company}'
-            """
+        """
         if territory:
-            sales_target_amount += f"AND territory = '{territory}'"
+            sales_target_amount += f" AND territory = '{territory}'"
         sales_target_amount = frappe.db.sql(sales_target_amount)[0][0] or 0
 
         collection_target_amount = f"""
@@ -91,9 +98,9 @@ def get_report_data(filters):
             AND `from` >= '{start_date}'
             AND `to` <= '{end_date}'
             AND company = '{company}'
-            """
+        """
         if territory:
-            collection_target_amount += f"AND territory = '{territory}'"
+            collection_target_amount += f" AND territory = '{territory}'"
         collection_target_amount = frappe.db.sql(collection_target_amount)[0][0] or 0
 
         achieved_sales_amount = f"""
@@ -115,58 +122,29 @@ def get_report_data(filters):
             AND pe.posting_date BETWEEN '{start_date}' AND '{end_date}'
             AND pe.docstatus = 1
             AND company = '{company}'
-            """
+        """
         achieved_payment_entry_amount = frappe.db.sql(achieved_payment_entry_amount)[0][0] or 0
 
         sales_visits_target = f"""
-            SELECT sum(p.number_of_visits) from `tabProductivity` p
-            join `tabVisit Goal` tvg 
-            on p.parent = tvg.name
+            SELECT sum(p.number_of_visits) 
+            FROM `tabProductivity` p
+            JOIN `tabVisit Goal` tvg ON p.parent = tvg.name
             WHERE tvg.sales_person = '{salesperson}'
             AND tvg.creation BETWEEN '{start_date}' AND '{end_date}'
             AND tvg.company = '{company}'
-            """
-
+        """
         if territory:
-            sales_visits_target += f"AND tvg.territory = '{territory}'"
-
+            sales_visits_target += f" AND tvg.territory = '{territory}'"
         sales_visits_target = frappe.db.sql(sales_visits_target)[0][0] or 0
 
         number_of_sales_visits = f"""
-            SELECT sum(p.verified_visits) from `tabProductivity` p
-            join `tabVisit Goal` tvg 
-            on p.parent = tvg.name
+            SELECT sum(p.verified_visits) 
+            FROM `tabProductivity` p
+            JOIN `tabVisit Goal` tvg ON p.parent = tvg.name
             WHERE tvg.sales_person = '{salesperson}'
             AND tvg.creation BETWEEN '{start_date}' AND '{end_date}'
             AND tvg.company = '{company}'
-            """
+        """
         if territory:
-            number_of_sales_visits += f"AND territory = '{territory}'"
-        number_of_sales_visits = frappe.db.sql(number_of_sales_visits)[0][0] or 0
-
-        number_of_payment_visits = f"""
-            SELECT COUNT(*)
-            FROM `tabCollecting`
-            WHERE visited_by = '{salesperson}'
-            AND date BETWEEN '{start_date}' AND '{end_date}'
-            AND company = '{company}'
-            AND docstatus = 1
-            """
-        if territory:
-            number_of_payment_visits += f"AND territory = '{territory}'"
-        number_of_payment_visits = frappe.db.sql(number_of_payment_visits)[0][0] or 0
-
-        data.append(
-            {
-                "salesperson": salesperson,
-                "sales_target_amount": sales_target_amount,
-                "achieved_sales_amount": achieved_sales_amount,
-                "collection_target_amount": collection_target_amount,
-                "achieved_payment_entry_amount": achieved_payment_entry_amount,
-                "sales_visits_target": sales_visits_target,
-                "number_of_sales_visits": number_of_sales_visits,
-                "number_of_payment_visits": number_of_payment_visits,
-            }
-        )
-
-    return data
+            number_of_sales_visits += f" AND territory = '{territory}'"
+        number_of_sales_visits
