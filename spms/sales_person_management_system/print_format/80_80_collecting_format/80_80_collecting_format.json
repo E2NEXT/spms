@@ -15,7 +15,7 @@
  "modified": "2022-09-26 10:33:20.146937",
  "modified_by": "Administrator",
  "module": "Sales Person Management System",
- "name": "80*80 Collecting Format",
+ "name": "80_80 Collecting Format",
  "owner": "Administrator",
  "print_format_builder": 0,
  "print_format_type": "Jinja",
